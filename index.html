@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renomear ZIP para .nds</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-gray-800 rounded-xl shadow-2xl p-6 border border-gray-700">
+        <h1 class="text-2xl font-bold text-center mb-2 text-indigo-400">Renomear ZIP para .nds</h1>
+        <p class="text-gray-400 text-sm text-center mb-6">Selecione o arquivo para transformá-lo em `.nds`.</p>
+
+        <!-- Área de Upload -->
+        <div class="mb-4">
+            <label class="block w-full border-2 border-dashed border-gray-600 hover:border-indigo-500 rounded-lg p-6 text-center cursor-pointer transition bg-gray-900/50">
+                <input type="file" id="fileInput" class="hidden">
+                <span id="fileName" class="text-gray-300 block text-sm">Clique aqui ou arraste o arquivo</span>
+            </label>
+        </div>
+
+        <!-- Botão de Ação -->
+        <button onclick="forceNDS()" id="actionBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-lg transition shadow-lg disabled:opacity-50" disabled>
+            Baixar como .nds
+        </button>
+
+        <!-- Status -->
+        <div id="status" class="mt-4 text-center text-sm text-gray-400"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileNameSpan = document.getElementById('fileName');
+        const actionBtn = document.getElementById('actionBtn');
+        const statusDiv = document.getElementById('status');
+        
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameSpan.textContent = selectedFile.name;
+                actionBtn.disabled = false;
+                statusDiv.textContent = '';
+            }
+        });
+
+        async function forceNDS() {
+            if (!selectedFile) return;
+
+            // Pega o nome do arquivo tirando qualquer extensão anterior (.zip, etc)
+            let baseName = selectedFile.name.substring(0, selectedFile.name.lastIndexOf('.'));
+            if (!baseName) baseName = selectedFile.name;
+            
+            const newName = baseName + '.nds';
+
+            // Força a criação de um novo Blob para o navegador assumir o novo nome limpo
+            const fileBuffer = await selectedFile.arrayBuffer();
+            const newBlob = new Blob([fileBuffer], { type: 'application/octet-stream' });
+
+            const downloadUrl = URL.createObjectURL(newBlob);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = newName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(downloadUrl);
+
+            statusDiv.innerHTML = `<span class="text-green-400 font-semibold">Pronto! Salvo como: ${newName}</span>`;
+        }
+    </script>
+</body>
+</html>
