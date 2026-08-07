@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Renomeador de ZIP para NDS</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-900 text-white min-h-screen flex flex-col items-center justify-center p-4">
+
+    <div class="max-w-md w-full bg-gray-800 rounded-xl shadow-2xl p-6 border border-gray-700">
+        <h1 class="text-2xl font-bold text-center mb-2 text-indigo-400">Renomear ZIP para .nds</h1>
+        <p class="text-gray-400 text-sm text-center mb-6">Selecione um arquivo para alterar a extensão dele para `.nds` instantaneamente.</p>
+
+        <!-- Área de Upload -->
+        <div class="mb-4">
+            <label class="block w-full border-2 border-dashed border-gray-600 hover:border-indigo-500 rounded-lg p-6 text-center cursor-pointer transition bg-gray-900/50">
+                <input type="file" id="fileInput" class="hidden">
+                <span id="fileName" class="text-gray-300 block text-sm">Clique aqui ou arraste o arquivo</span>
+            </label>
+        </div>
+
+        <!-- Botão de Ação -->
+        <button onclick="renameFile()" id="actionBtn" class="w-full bg-indigo-600 hover:bg-indigo-500 text-white font-semibold py-2.5 rounded-lg transition shadow-lg disabled:opacity-50" disabled>
+            Baixar como .nds
+        </button>
+
+        <!-- Status -->
+        <div id="status" class="mt-4 text-center text-sm text-gray-400"></div>
+    </div>
+
+    <script>
+        const fileInput = document.getElementById('fileInput');
+        const fileNameSpan = document.getElementById('fileName');
+        const actionBtn = document.getElementById('actionBtn');
+        const statusDiv = document.getElementById('status');
+        
+        let selectedFile = null;
+
+        fileInput.addEventListener('change', (e) => {
+            if (e.target.files.length > 0) {
+                selectedFile = e.target.files[0];
+                fileNameSpan.textContent = selectedFile.name;
+                actionBtn.disabled = false;
+                statusDiv.textContent = '';
+            }
+        });
+
+        function renameFile() {
+            if (!selectedFile) return;
+
+            // Pega o nome original e troca a extensão final para .nds
+            const originalName = selectedFile.name;
+            const newName = originalName.substring(0, originalName.lastIndexOf('.')) + '.nds';
+
+            // Cria um link de download com o novo nome mantendo os dados binários originais
+            const downloadUrl = URL.createObjectURL(selectedFile);
+            const a = document.createElement('a');
+            a.href = downloadUrl;
+            a.download = newName;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+
+            statusDiv.innerHTML = `<span class="text-green-400 font-semibold">Pronto! Arquivo baixado como: ${newName}</span>`;
+        }
+    </script>
+</body>
+</html>
